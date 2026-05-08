@@ -48,7 +48,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     return false;
   }
 
-  const output = issueKey + " " + issueTitle;
+  const output = issueKey + ": " + issueTitle;
 
   copyToClipboard(output)
     .then(function(copied) {
