@@ -16,6 +16,35 @@ function issueKeyFromUrl() {
   return match?.[1]?.toUpperCase() || "";
 }
 
+function showFeedback(message, isSuccess) {
+  const existing = document.getElementById("jira-issue-copy-feedback");
+  if (existing) {
+    existing.remove();
+  }
+
+  const feedback = document.createElement("div");
+  feedback.id = "jira-issue-copy-feedback";
+  feedback.textContent = message;
+  feedback.style.position = "fixed";
+  feedback.style.top = "16px";
+  feedback.style.right = "16px";
+  feedback.style.zIndex = "2147483647";
+  feedback.style.padding = "10px 14px";
+  feedback.style.borderRadius = "8px";
+  feedback.style.background = isSuccess ? "#1f7a3d" : "#b42318";
+  feedback.style.color = "#ffffff";
+  feedback.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  feedback.style.fontSize = "14px";
+  feedback.style.fontWeight = "600";
+  feedback.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.18)";
+
+  document.body.appendChild(feedback);
+
+  globalThis.setTimeout(function() {
+    feedback.remove();
+  }, 1800);
+}
+
 async function copyToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text);
@@ -52,9 +81,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   copyToClipboard(output)
     .then(function(copied) {
+      showFeedback(copied ? "Copied Jira issue" : "Copy failed", copied);
       sendResponse({ copied: copied, text: output });
     })
     .catch(function(error) {
+      showFeedback("Copy failed", false);
       sendResponse({ copied: false, error: String(error) });
     });
 
